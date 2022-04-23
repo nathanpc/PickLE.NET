@@ -32,6 +32,33 @@ namespace PickLE {
 		}
 
 		/// <summary>
+		/// Gets a string that represents how this component is defined in a
+		/// pick list file.
+		/// </summary>
+		/// <returns>String that can be used inside a pick list file.</returns>
+		public string ToDocumentString() {
+			StringBuilder str = new StringBuilder();
+
+			// Build up the descriptor line.
+			str.Append("[" + ((Picked) ? "X" : " ") + "]");
+			str.Append("\t" + Quantity);
+			str.Append("\t" + Name);
+			if (Value != null)
+				str.Append("\t(" + Value + ")");
+			str.Append("\t{" + Category + "}");
+			if (Description != null)
+				str.Append("\t\"" + Description + "\"");
+			if (Package != null)
+				str.Append("\t[" + Package + "]");
+
+			// Append the reference designator line.
+			str.AppendLine();
+			str.AppendLine(string.Join(" ", RefDes.ToArray()));
+
+			return str.ToString();
+		}
+
+		/// <summary>
 		/// Has the component already been picked?
 		/// </summary>
 		public bool Picked {
@@ -52,7 +79,13 @@ namespace PickLE {
 		/// </summary>
 		public string Value {
 			get { return _value; }
-			set { this._value = value; }
+			set {
+				this._value = value;
+				if (value != null) {
+					if (value.Length == 0)
+						this._value = null;
+				}
+			}
 		}
 
 		/// <summary>
@@ -60,7 +93,13 @@ namespace PickLE {
 		/// </summary>
 		public string Description {
 			get { return _description; }
-			set { this._description = value; }
+			set {
+				this._description = value;
+				if (value != null) {
+					if (value.Length == 0)
+						this._description = null;
+				}
+			}
 		}
 
 		/// <summary>
@@ -68,7 +107,13 @@ namespace PickLE {
 		/// </summary>
 		public string Package {
 			get { return _package; }
-			set { this._package = value; }
+			set {
+				this._package = value;
+				if (value != null) {
+					if (value.Length == 0)
+						this._package = null;
+				}
+			}
 		}
 
 		/// <summary>
