@@ -14,8 +14,24 @@ namespace PickLE.Example {
 
 			// Parse the document and list its contents.
 			Document doc = new Document(filePath);
-			foreach (Component component in doc.Components) {
-				Console.WriteLine(component.ToDocumentString());
+			foreach (string category in doc.Categories) {
+				Console.WriteLine(category + ":");
+
+				foreach (Component component in doc.GetComponentsByCategory(category)) {
+					Console.Write("    [" + ((component.Picked) ? "X" : " ") + "]");
+					Console.Write(" " + component.Quantity + "x " + component.Name);
+					if (component.Value != null)
+						Console.Write(" (" + component.Value + ")");
+					if (component.Description != null)
+						Console.Write(" \"" + component.Description + "\"");
+					if (component.Package != null)
+						Console.Write(" [" + component.Package + "]");
+
+					Console.WriteLine();
+					Console.WriteLine("        " + string.Join(" ", component.RefDes.ToArray()));
+				}
+
+				Console.WriteLine();
 			}
 
 			// Wait to close.
