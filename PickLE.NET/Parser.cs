@@ -68,6 +68,7 @@ namespace PickLE {
 
 				// Parse the descriptor line.
 				Match match = regex.Match(line);
+				component.Picked = match.Groups["picked"].Value != " ";
 				component.Name = match.Groups["name"].Value;
 				component.Value = match.Groups["value"].Value;
 				component.Category = match.Groups["category"].Value;
