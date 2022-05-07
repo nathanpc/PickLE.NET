@@ -33,9 +33,10 @@ namespace PickLE {
 			StreamReader sr = new StreamReader(path);
 			Phase phase = Phase.Empty;
 			string line;
+			string currentCategory = "Unknown";
 			Component component = null;
 			Regex regex = new Regex(
-				@"\[(?<picked>.)\]\s+(?<quantity>\d+)\s+(?<name>[^\s]+)\s*(\((?<value>[^\)]+)\)\s*)?({(?<category>[^}]+)}\s*)?(""(?<description>[^\""]+)""\s*)?(\[(?<case>[^\]]+)\]\s*)?",
+				@"\[(?<picked>.)\]\s+(?<quantity>\d+)\s+(?<name>[^\s]+)\s*(\((?<value>[^\)]+)\)\s*)?(""(?<description>[^\""]+)""\s*)?(\[(?<case>[^\]]+)\]\s*)?",
 				RegexOptions.Compiled);
 
 			// Go through lines.
@@ -46,6 +47,10 @@ namespace PickLE {
 						// Looks like we are about to parse a descriptor line.
 						phase = Phase.Descriptor;
 						component = new Component();
+					} else if (line[line.Length - 1] == ':') {
+						// Got a category line.
+						currentCategory = line.Substring(0, line.Length - 1);
+						continue;
 					} else if (line.Length == 0) {
 						// Just another empty line...
 						continue;
@@ -71,7 +76,7 @@ namespace PickLE {
 				component.Picked = match.Groups["picked"].Value != " ";
 				component.Name = match.Groups["name"].Value;
 				component.Value = match.Groups["value"].Value;
-				component.Category = match.Groups["category"].Value;
+				component.Category = currentCategory;
 				component.Description = match.Groups["description"].Value;
 				component.Package = match.Groups["case"].Value;
 
