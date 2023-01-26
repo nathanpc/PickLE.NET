@@ -1,6 +1,10 @@
+using PickLE.Exceptions;
+using PickLE.Utilities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using static System.Collections.Specialized.BitVector32;
 
 namespace PickLE {
 	/// <summary>
@@ -9,6 +13,11 @@ namespace PickLE {
 	public class Document {
 		private List<Property> _properties;
 		private List<Category> _categories;
+
+		protected enum Section {
+			Body = 0,
+			Header
+		};
 
 		/// <summary>
 		/// Constructs an empty pick list.
@@ -26,49 +35,67 @@ namespace PickLE {
 			ParseFile(path);
 		}
 
-		/*
-		/// <summary>
-		/// Gets the list of components that belong to the specified category.
-		/// </summary>
-		/// <param name="category">Category to be used as a filter.</param>
-		/// <returns>Filtered list of components.</returns>
-		public List<Component> GetComponentsByCategory(string category) {
-			List<Component> components = new List<Component>();
-
-			// Go through components filtering them.
-			foreach (Component component in Components) {
-				if (component.Category == category)
-					components.Add(component);
-			}
-
-			return components;
-		}
-		*/
-
-		/// <summary>
-		/// Gets the list of components that come in the specified package.
-		/// </summary>
-		/// <param name="package">Package to be used as a filter.</param>
-		/// <returns>Filtered list of components.</returns>
-		public List<Component> GetComponentsByPackage(string package) {
-			List<Component> components = new List<Component>();
-
-			// Go through components filtering them.
-			foreach (Component component in Components) {
-				if (component.Package == package)
-					components.Add(component);
-			}
-
-			return components;
-		}
-
 		/// <summary>
 		/// Parses a pick list file and populates this object with its data.
 		/// </summary>
 		/// <param name="path">Pick list file path.</param>
 		public void ParseFile(string path) {
-			Parser parser = new Parser(this);
-			parser.ParseFile(path);
+			StreamReader sr = new StreamReader(path);
+			Section section = Section.Header;
+			string line;
+
+			// Go through lines.
+			while ((line = sr.ReadLine()) != null) {
+				switch (section) {
+					case Section.Body:
+						// Parsing the body of the pick list.
+						if (StringUtils.IsEmptyOrWhitespace(line)) {
+							// Just another empty line...
+							continue;
+						} else if (Category.IsLabelLine(line)) {
+							// Got a category line.
+							Categories.Add(new Category());
+							Categories[Categories.Count - 1].ParseLine(line);
+
+							continue;
+						} else if (!Component.IsDescriptorLine(line)) {
+							// We have no idea what this line actually is.
+							throw new ParsingException("Unknown type of line in body of pick list.", line);
+						}
+
+						// Parsing a component.
+						Component component = new Component(line);
+						line = sr.ReadLine();
+						if (!Component.IsRefDesLine(line))
+							throw new ParsingException("A reference designator line must always follow a component descriptor line.", line);
+						component.ParseRefDesLine(line);
+						Categories[Categories.Count - 1].Components.Add(component);
+
+						break;
+					case Section.Header:
+						// Parsing the header section.
+						if (StringUtils.IsEmptyOrWhitespace(line)) {
+							// Just another empty line...
+							continue;
+						} else if (Property.IsHeaderEndLine(line)) {
+							// Looks like we are done parsing the header section.
+							section = Section.Body;
+							continue;
+						} else if (!Property.IsPropertyLine(line)) {
+							// We have an invalid line for this section of the document.
+							throw new ParsingException("Not a valid property line in the header section.", line);
+						}
+
+						// Parse the property and append it to the properties list.
+						Properties.Add(new Property(line));
+						break;
+					default:
+						throw new Exception("Invalid parsing phase.");
+				}
+			}
+
+			// Close the reader.
+			sr.Close();
 		}
 
 		/// <summary>
@@ -92,23 +119,6 @@ namespace PickLE {
 		/// </summary>
 		public List<Component> Components {
 			get { return null; }
-		}
-
-		/// <summary>
-		/// Generates a list of the available packages of components in the list.
-		/// </summary>
-		public List<string> Packages {
-			get {
-				/*
-				List<string> packages = new List<string>();
-				foreach (Component component in Components) {
-					if (!packages.Contains(component.Package))
-						packages.Add(component.Package);
-				}
-				return packages;
-				*/
-				return null;
-			}
 		}
 	}
 }

@@ -36,14 +36,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Component.cs" />
-    <Compile Include="Document Items\Category.cs" />
-    <Compile Include="Document Items\IDocumentLine.cs" />
+    <Compile Include="DocumentItems\Component.cs" />
+    <Compile Include="DocumentItems\Category.cs" />
+    <Compile Include="DocumentItems\IDocumentLine.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Exceptions\ParsingException.cs" />
-    <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Document Items\Property.cs" />
+    <Compile Include="DocumentItems\Property.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
