@@ -27,7 +27,7 @@ namespace PickLE {
 		/// Creates a brand new category without any components.
 		/// </summary>
 		/// <param name="name">Name of the category.</param>
-		public Category(string name) : base() {
+		public Category(string name) : this() {
 			Name = name;
 		}
 
