@@ -1,4 +1,5 @@
-﻿using PickLE.Utilities;
+﻿using PickLE.Exceptions;
+using PickLE.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -68,7 +69,7 @@ namespace PickLE {
 
 			// Check if the parsing was successful.
 			if (!match.Success)
-				throw new Exception("Couldn't parse the property line.");
+				throw new ParsingException("Couldn't parse the property line.", line);
 
 			// Populate ourselves.
 			Name = match.Groups["name"].Value;
