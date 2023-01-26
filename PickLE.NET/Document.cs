@@ -8,14 +8,14 @@ namespace PickLE {
 	/// </summary>
 	public class Document {
 		private List<Property> _properties;
-		//private List<Category> _category;
+		private List<Category> _categories;
 
 		/// <summary>
 		/// Constructs an empty pick list.
 		/// </summary>
 		public Document() {
 			Properties = new List<Property>();
-			//Categories = new List<Category>();
+			Categories = new List<Category>();
 		}
 
 		/// <summary>
@@ -79,15 +79,13 @@ namespace PickLE {
 			set { _properties = value; }
 		}
 
-		/*
 		/// <summary>
-		/// Generates a list of the available categories of components in the list.
+		/// List of the available categories of components in the pick list.
 		/// </summary>
-		public List<string> Categories {
+		public List<Category> Categories {
 			get { return _categories; }
 			set { _categories = value; }
 		}
-		*/
 
 		/// <summary>
 		/// Components listed in this pick list.

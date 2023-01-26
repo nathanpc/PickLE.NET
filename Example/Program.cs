@@ -18,7 +18,15 @@ namespace PickLE.Example {
 			// List the properties.
 			Console.WriteLine("Properties:");
 			foreach (Property property in doc.Properties) {
-				Console.WriteLine("    " + property.GetPrettyName() + ":\t" + property.Value);
+				Console.WriteLine("    " + property.GetPrettyName() + ":\t" +
+					property.Value);
+			}
+			Console.WriteLine();
+
+			// List the categories and its components.
+			foreach (Category category in doc.Categories) {
+				Console.WriteLine(category.Name + " [" +
+					category.Components.Count + "]:");
 			}
 			Console.WriteLine();
 

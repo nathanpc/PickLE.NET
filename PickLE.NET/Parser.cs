@@ -47,10 +47,22 @@ namespace PickLE {
 			while ((line = sr.ReadLine()) != null) {
 				switch (phase) {
 					case Phase.Empty:
+						// Parsing the body of the pick list.
+						if (StringUtils.IsEmptyOrWhitespace(line)) {
+							// Just another empty line...
+							continue;
+						} else if (Category.IsLabelLine(line)) {
+							// Got a category line.
+							document.Categories.Add(new Category());
+							document.Categories[document.Categories.Count - 1].ParseLine(line);
+
+							continue;
+						} else {
+							//throw new ParsingException("Unknown type of line in body of pick list.", line);
+						}
 						break;
 					case Phase.Property:
 						// Parsing the header section.
-
 						if (StringUtils.IsEmptyOrWhitespace(line)) {
 							// Just another empty line...
 							continue;
@@ -114,6 +126,7 @@ namespace PickLE {
 				*/
 			}
 
+			// Close the reader.
 			sr.Close();
 		}
 	}
