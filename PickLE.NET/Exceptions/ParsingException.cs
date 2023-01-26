@@ -6,7 +6,7 @@ namespace PickLE.Exceptions {
 	/// <summary>
 	/// Provides detailed information about an error while parsing a document.
 	/// </summary>
-	class ParsingException : FormatException {
+	public class ParsingException : FormatException {
 		public ParsingException() : base() {
 		}
 
