@@ -38,7 +38,7 @@ namespace PickLE {
 		/// </summary>
 		/// <param name="path">Pick list file path.</param>
 		public void ParseFile(string path) {
-			StreamReader sr = new StreamReader(path);
+			StreamReader sr = new StreamReader(new FileStream(path, FileMode.Open));
 			Section section = Section.Header;
 			string line;
 
@@ -93,7 +93,7 @@ namespace PickLE {
 			}
 
 			// Close the reader.
-			sr.Close();
+			sr.Dispose();
 		}
 
 		/// <summary>

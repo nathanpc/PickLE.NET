@@ -18,10 +18,6 @@ namespace PickLE.Exceptions {
 			: base(message, innerException) {
 		}
 
-		protected ParsingException(SerializationInfo info, StreamingContext context)
-			: base(info, context) {
-		}
-
 		/// <summary>
 		/// Constructs a new parsing exception with a message and the line
 		/// where the error occurred.
