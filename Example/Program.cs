@@ -12,8 +12,17 @@ namespace PickLE.Example {
 				filePath = args[0];
 			}
 
-			// Parse the document and list its contents.
+			// Parse the document.
 			Document doc = new Document(filePath);
+
+			// List the properties.
+			Console.WriteLine("Properties:");
+			foreach (Property property in doc.Properties) {
+				Console.WriteLine("    " + property.GetPrettyName() + ":\t" + property.Value);
+			}
+			Console.WriteLine();
+
+			/*
 			foreach (string category in doc.Categories) {
 				Console.WriteLine(category + ":");
 
@@ -33,6 +42,7 @@ namespace PickLE.Example {
 
 				Console.WriteLine();
 			}
+			*/
 
 			// Wait to close.
 			Console.ReadKey();

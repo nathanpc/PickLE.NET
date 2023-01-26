@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Text.RegularExpressions;
+using PickLE.Utilities;
+using PickLE.Exceptions;
 
 namespace PickLE {
 	/// <summary>
@@ -12,6 +14,7 @@ namespace PickLE {
 		protected Document document;
 		protected enum Phase {
 			Empty = 0,
+			Property,
 			Descriptor,
 			RefDes
 		};
@@ -31,16 +34,42 @@ namespace PickLE {
 		/// <param name="path">Path to a pick list file.</param>
 		public void ParseFile(string path) {
 			StreamReader sr = new StreamReader(path);
-			Phase phase = Phase.Empty;
+			Phase phase = Phase.Property;
 			string line;
-			string currentCategory = "Unknown";
-			Component component = null;
-			Regex regex = new Regex(
+			//string currentCategory = "Unknown";
+			//Component component = null;
+			/*Regex regex = new Regex(
 				@"\[(?<picked>.)\]\s+(?<quantity>\d+)\s+(?<name>[^\s]+)\s*(\((?<value>[^\)]+)\)\s*)?(""(?<description>[^\""]+)""\s*)?(\[(?<case>[^\]]+)\]\s*)?",
 				RegexOptions.Compiled);
+			*/
 
 			// Go through lines.
 			while ((line = sr.ReadLine()) != null) {
+				switch (phase) {
+					case Phase.Empty:
+						break;
+					case Phase.Property:
+						// Parsing the header section.
+
+						if (StringUtils.IsEmptyOrWhitespace(line)) {
+							// Just another empty line...
+							continue;
+						} else if (Property.IsHeaderEndLine(line)) {
+							// Looks like we are done parsing the header section.
+							phase = Phase.Empty;
+							continue;
+						} else if (!Property.IsPropertyLine(line)) {
+							// We have an invalid line for this section of the document.
+							throw new ParsingException("Not a valid property line in the header section.", line);
+						}
+
+						// Parse the property and append it to the properties list.
+						document.Properties.Add(new Property(line));
+						break;
+					default:
+						throw new Exception("Invalid parsing phase.");
+				}
+				/*
 				switch (phase) {
 				case Phase.Empty:
 					if (line[0] == '[') {
@@ -82,6 +111,7 @@ namespace PickLE {
 
 				// Move to the next phase.
 				phase = Phase.RefDes;
+				*/
 			}
 
 			sr.Close();

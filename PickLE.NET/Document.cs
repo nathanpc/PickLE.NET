@@ -7,13 +7,15 @@ namespace PickLE {
 	/// Abstration of a pick list document.
 	/// </summary>
 	public class Document {
-		private List<Component> _components;
+		private List<Property> _properties;
+		//private List<Category> _category;
 
 		/// <summary>
 		/// Constructs an empty pick list.
 		/// </summary>
 		public Document() {
-			Components = new List<Component>();
+			Properties = new List<Property>();
+			//Categories = new List<Category>();
 		}
 
 		/// <summary>
@@ -24,6 +26,7 @@ namespace PickLE {
 			ParseFile(path);
 		}
 
+		/*
 		/// <summary>
 		/// Gets the list of components that belong to the specified category.
 		/// </summary>
@@ -40,6 +43,7 @@ namespace PickLE {
 
 			return components;
 		}
+		*/
 
 		/// <summary>
 		/// Gets the list of components that come in the specified package.
@@ -68,25 +72,28 @@ namespace PickLE {
 		}
 
 		/// <summary>
-		/// Components listed in this pick list.
+		/// List of properties in the header of a document.
 		/// </summary>
-		public List<Component> Components {
-			get { return _components; }
-			set { this._components = value; }
+		public List<Property> Properties {
+			get { return _properties; }
+			set { _properties = value; }
 		}
 
+		/*
 		/// <summary>
 		/// Generates a list of the available categories of components in the list.
 		/// </summary>
 		public List<string> Categories {
-			get {
-				List<string> categories = new List<string>();
-				foreach (Component component in Components) {
-					if (!categories.Contains(component.Category))
-						categories.Add(component.Category);
-				}
-				return categories;
-			}
+			get { return _categories; }
+			set { _categories = value; }
+		}
+		*/
+
+		/// <summary>
+		/// Components listed in this pick list.
+		/// </summary>
+		public List<Component> Components {
+			get { return null; }
 		}
 
 		/// <summary>
@@ -94,12 +101,15 @@ namespace PickLE {
 		/// </summary>
 		public List<string> Packages {
 			get {
+				/*
 				List<string> packages = new List<string>();
 				foreach (Component component in Components) {
 					if (!packages.Contains(component.Package))
 						packages.Add(component.Package);
 				}
 				return packages;
+				*/
+				return null;
 			}
 		}
 	}
