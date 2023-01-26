@@ -7,7 +7,7 @@ namespace PickLE.Example {
 	class Program {
 		static void Main(string[] args) {
 			// Get the pick list file to parse.
-			string filePath = @"D:\Projects\pickle\examples\example.pkl";
+			string filePath = @"..\..\..\example.pkl";
 			if (args.Length >= 1) {
 				filePath = args[0];
 			}
