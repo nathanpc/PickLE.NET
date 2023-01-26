@@ -93,8 +93,12 @@ namespace PickLE {
 			}
 
 			// Close the reader.
-			sr.Dispose();
-		}
+			#if WINDOWS_UWP
+				sr.Dispose();
+			#else
+				sr.Close();
+			#endif  // WINDOWS_UWP
+        }
 
 		/// <summary>
 		/// List of properties in the header of a document.

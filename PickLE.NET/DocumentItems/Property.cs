@@ -43,7 +43,7 @@ namespace PickLE {
 		/// <param name="line">Line to be checked.</param>
 		/// <returns>Is this a property line that we can parse?</returns>
 		public static bool IsPropertyLine(string line) {
-			return StringUtils.StartsWithLetter(line) && line.Contains(": ");
+			return StringUtils.StartsWithLetter(line) && (line.IndexOf(": ") >= 0);
 		}
 
 		/// <summary>

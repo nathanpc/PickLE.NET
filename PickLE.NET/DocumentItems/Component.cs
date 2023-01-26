@@ -85,8 +85,12 @@ namespace PickLE {
 		/// <param name="line">Line to be parsed.</param>
 		public void ParseRefDesLine(string line) {
 			RefDes.Clear();
-			RefDes = new List<string>(line.Split(
-				new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+			#if PocketPC
+				RefDes = new List<string>(line.Split(' '));
+			#else
+				RefDes = new List<string>(line.Split(
+					new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+			#endif  // PocketPC
 		}
 
 		/// <summary>
@@ -125,7 +129,12 @@ namespace PickLE {
 		public string ToDocumentFormat() {
 			StringBuilder str = new StringBuilder();
 
-			str.AppendLine(GetDescriptorLine());
+			#if PocketPC
+				str.Append(GetDescriptorLine());
+				str.Append("\r\n");
+			#else
+				str.AppendLine(GetDescriptorLine());
+			#endif  // PocketPC
 			str.Append(GetRefDesLine());
 
 			return str.ToString();

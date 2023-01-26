@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Text;
 
 namespace PickLE.Exceptions {
@@ -26,7 +25,9 @@ namespace PickLE.Exceptions {
 		/// <param name="line">Line that we tried to parse.</param>
 		public ParsingException(string message, string line)
 			: this(message + "\n\tat \"" + line + "\"") {
-			Data.Add("MalformedLine", line);
+			#if !PocketPC
+				Data.Add("MalformedLine", line);
+			#endif  // !PocketPC
 		}
 	}
 }
