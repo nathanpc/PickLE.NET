@@ -23,18 +23,13 @@ namespace PickLE.Example {
 			}
 			Console.WriteLine();
 
-			// List the categories and its components.
+			// List the categories.
 			foreach (Category category in doc.Categories) {
 				Console.WriteLine(category.Name + " [" +
 					category.Components.Count + "]:");
-			}
-			Console.WriteLine();
 
-			/*
-			foreach (string category in doc.Categories) {
-				Console.WriteLine(category + ":");
-
-				foreach (Component component in doc.GetComponentsByCategory(category)) {
+				// List its components.
+				foreach (Component component in category.Components) {
 					Console.Write("    [" + ((component.Picked) ? "X" : " ") + "]");
 					Console.Write(" " + component.Quantity + "x " + component.Name);
 					if (component.Value != null)
@@ -45,12 +40,10 @@ namespace PickLE.Example {
 						Console.Write(" [" + component.Package + "]");
 
 					Console.WriteLine();
-					Console.WriteLine("        " + string.Join(" ", component.RefDes.ToArray()));
+					Console.WriteLine("        " + component.GetRefDesLine());
+					Console.WriteLine();
 				}
-
-				Console.WriteLine();
 			}
-			*/
 
 			// Wait to close.
 			Console.ReadKey();

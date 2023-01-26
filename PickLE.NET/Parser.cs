@@ -13,10 +13,8 @@ namespace PickLE {
 	public class Parser {
 		protected Document document;
 		protected enum Phase {
-			Empty = 0,
-			Property,
-			Descriptor,
-			RefDes
+			Body = 0,
+			Header
 		};
 
 		/// <summary>
@@ -34,19 +32,13 @@ namespace PickLE {
 		/// <param name="path">Path to a pick list file.</param>
 		public void ParseFile(string path) {
 			StreamReader sr = new StreamReader(path);
-			Phase phase = Phase.Property;
+			Phase phase = Phase.Header;
 			string line;
-			//string currentCategory = "Unknown";
-			//Component component = null;
-			/*Regex regex = new Regex(
-				@"\[(?<picked>.)\]\s+(?<quantity>\d+)\s+(?<name>[^\s]+)\s*(\((?<value>[^\)]+)\)\s*)?(""(?<description>[^\""]+)""\s*)?(\[(?<case>[^\]]+)\]\s*)?",
-				RegexOptions.Compiled);
-			*/
 
 			// Go through lines.
 			while ((line = sr.ReadLine()) != null) {
 				switch (phase) {
-					case Phase.Empty:
+					case Phase.Body:
 						// Parsing the body of the pick list.
 						if (StringUtils.IsEmptyOrWhitespace(line)) {
 							// Just another empty line...
@@ -57,18 +49,28 @@ namespace PickLE {
 							document.Categories[document.Categories.Count - 1].ParseLine(line);
 
 							continue;
-						} else {
-							//throw new ParsingException("Unknown type of line in body of pick list.", line);
+						} else if (!Component.IsDescriptorLine(line)) {
+							// We have no idea what this line actually is.
+							throw new ParsingException("Unknown type of line in body of pick list.", line);
 						}
+
+						// Parsing a component.
+						Component component = new Component(line);
+						line = sr.ReadLine();
+						if (!Component.IsRefDesLine(line))
+							throw new ParsingException("A reference designator line must always follow a component descriptor line.", line);
+						component.ParseRefDesLine(line);
+						document.Categories[document.Categories.Count - 1].Components.Add(component);
+
 						break;
-					case Phase.Property:
+					case Phase.Header:
 						// Parsing the header section.
 						if (StringUtils.IsEmptyOrWhitespace(line)) {
 							// Just another empty line...
 							continue;
 						} else if (Property.IsHeaderEndLine(line)) {
 							// Looks like we are done parsing the header section.
-							phase = Phase.Empty;
+							phase = Phase.Body;
 							continue;
 						} else if (!Property.IsPropertyLine(line)) {
 							// We have an invalid line for this section of the document.
@@ -81,49 +83,6 @@ namespace PickLE {
 					default:
 						throw new Exception("Invalid parsing phase.");
 				}
-				/*
-				switch (phase) {
-				case Phase.Empty:
-					if (line[0] == '[') {
-						// Looks like we are about to parse a descriptor line.
-						phase = Phase.Descriptor;
-						component = new Component();
-					} else if (line[line.Length - 1] == ':') {
-						// Got a category line.
-						currentCategory = line.Substring(0, line.Length - 1);
-						continue;
-					} else if (line.Length == 0) {
-						// Just another empty line...
-						continue;
-					}
-					break;
-				case Phase.RefDes:
-					// Looks like we've finished parsing this component.
-					if (line.Length == 0) {
-						document.Components.Add(component);
-						component = null;
-						phase = Phase.Empty;
-						continue;
-					}
-
-					// Parse the reference designators.
-					component.RefDes.AddRange(line.Split(new char[] { ' ' },
-						StringSplitOptions.RemoveEmptyEntries));
-					continue;
-				}
-
-				// Parse the descriptor line.
-				Match match = regex.Match(line);
-				component.Picked = match.Groups["picked"].Value != " ";
-				component.Name = match.Groups["name"].Value;
-				component.Value = match.Groups["value"].Value;
-				component.Category = currentCategory;
-				component.Description = match.Groups["description"].Value;
-				component.Package = match.Groups["case"].Value;
-
-				// Move to the next phase.
-				phase = Phase.RefDes;
-				*/
 			}
 
 			// Close the reader.

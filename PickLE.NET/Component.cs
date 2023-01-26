@@ -1,19 +1,27 @@
+using PickLE.Utilities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PickLE {
 	/// <summary>
 	/// Representation of an electronic component in a pick list.
 	/// </summary>
-	public class Component {
+	public class Component : IDocumentLine {
 		private bool _picked;
 		private string _name;
 		private string _value;
 		private string _description;
 		private string _package;
-		private string _category;
 		private List<string> _refdes;
+
+		protected static Regex regex = new Regex(
+			@"\[(?<picked>.)\]\s+(?<quantity>\d+)\s+(?<name>[^\s]+)\s*(\((?<value>[^\)]+)\)\s*)?(""(?<description>[^\""]+)""\s*)?(\[(?<case>[^\]]+)\]\s*)?",
+			RegexOptions.Compiled);
+		protected static Regex validRefDesRegex = new Regex(
+			@"^[A-Z][ A-Z0-9]+$", RegexOptions.Compiled);
 
 		/// <summary>
 		/// Constructs an empty component object.
@@ -22,7 +30,6 @@ namespace PickLE {
 			// Required attributes.
 			Picked = false;
 			Name = "";
-			Category = "";
 			RefDes = new List<string>();
 
 			// Optional attributes.
@@ -32,11 +39,61 @@ namespace PickLE {
 		}
 
 		/// <summary>
-		/// Gets a string that represents how this component is defined in a
-		/// pick list file.
+		/// Constructs a partially populated component object from a descriptor
+		/// line.
 		/// </summary>
-		/// <returns>String that can be used inside a pick list file.</returns>
-		public string ToDocumentString() {
+		/// <param name="line">Descriptor line to be parsed.</param>
+		public Component(string line)
+			: this() {
+			ParseLine(line);
+		}
+
+		/// <summary>
+		/// Checks if a document line is a valid component description line.
+		/// </summary>
+		/// <param name="line">Line to be checked.</param>
+		/// <returns>Is this line a component description?</returns>
+		public static bool IsDescriptorLine(string line) {
+			return (line != null) && line.StartsWith("[");
+		}
+
+		/// <summary>
+		/// Checks if a document line is a valid reference designator line.
+		/// </summary>
+		/// <param name="line">Line to be checked.</param>
+		/// <returns>Is this line a reference designator line?</returns>
+		public static bool IsRefDesLine(string line) {
+			return (line != null) && validRefDesRegex.IsMatch(line);
+		}
+
+		/// <summary>
+		/// Parses the component descriptor line from a document.
+		/// </summary>
+		/// <param name="line">Line to be parsed.</param>
+		public void ParseLine(string line) {
+			Match match = regex.Match(line);
+			Picked = match.Groups["picked"].Value != " ";
+			Name = match.Groups["name"].Value;
+			Value = match.Groups["value"].Value;
+			Description = match.Groups["description"].Value;
+			Package = match.Groups["case"].Value;
+		}
+
+		/// <summary>
+		/// Parses the reference designator line from a document.
+		/// </summary>
+		/// <param name="line">Line to be parsed.</param>
+		public void ParseRefDesLine(string line) {
+			RefDes.Clear();
+			RefDes = new List<string>(line.Split(
+				new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+		}
+
+		/// <summary>
+		/// Gets a document-formatted string of the component descriptor line.
+		/// </summary>
+		/// <returns>Document formatted component descriptor lines.</returns>
+		public string GetDescriptorLine() {
 			StringBuilder str = new StringBuilder();
 
 			// Build up the descriptor line.
@@ -45,17 +102,41 @@ namespace PickLE {
 			str.Append("\t" + Name);
 			if (Value != null)
 				str.Append("\t(" + Value + ")");
-			str.Append("\t{" + Category + "}");
 			if (Description != null)
 				str.Append("\t\"" + Description + "\"");
 			if (Package != null)
 				str.Append("\t[" + Package + "]");
 
-			// Append the reference designator line.
-			str.AppendLine();
-			str.AppendLine(string.Join(" ", RefDes.ToArray()));
+			return str.ToString();
+		}
+
+		/// <summary>
+		/// Gets a document-formatted string of the reference designator line.
+		/// </summary>
+		/// <returns>Document formatted reference designator line.</returns>
+		public string GetRefDesLine() {
+			return String.Join(" ", RefDes.ToArray());
+		}
+
+		/// <summary>
+		/// Creates a full component definition for a PickLE document.
+		/// </summary>
+		/// <returns>Document formatted component definition lines.</returns>
+		public string ToDocumentFormat() {
+			StringBuilder str = new StringBuilder();
+
+			str.AppendLine(GetDescriptorLine());
+			str.Append(GetRefDesLine());
 
 			return str.ToString();
+		}
+
+		/// <summary>
+		/// Gets the string representation of the component.
+		/// </summary>
+		/// <returns>The full component as it is represented in the document.</returns>
+		public override string ToString() {
+			return ToDocumentFormat();
 		}
 
 		/// <summary>
@@ -117,14 +198,6 @@ namespace PickLE {
 		}
 
 		/// <summary>
-		/// Category of the component.
-		/// </summary>
-		public string Category {
-			get { return _category; }
-			set { this._category = value; }
-		}
-
-		/// <summary>
 		/// List of reference designators.
 		/// </summary>
 		public List<string> RefDes {
@@ -136,15 +209,7 @@ namespace PickLE {
 		/// Quantity of items to be picked.
 		/// </summary>
 		public int Quantity {
-			get { return _refdes.Count; }
-		}
-
-		/// <summary>
-		/// String representation of this object.
-		/// </summary>
-		/// <returns>Component name and quantity.</returns>
-		public override string ToString() {
-			return Quantity + "x " + Name;
+			get { return RefDes.Count; }
 		}
 	}
 }
